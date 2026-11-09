@@ -1,0 +1,55 @@
+name: Build Flutter Android Debug APK
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Repository Code Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Java Environment
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Set up Flutter Environment
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x' # Updates automatically to latest stable version
+          channel: 'stable'
+          cache: true
+
+      # 4. Get Flutter packages
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Run Flutter Analyze (Optional checks)
+      - name: Analyze project
+        run: flutter analyze --no-fatal-infos
+
+      # 6. Build Debug APK
+      - name: Build Debug APK
+        run: flutter build apk --debug
+
+      # 7. Upload Build Artifact (APK Download Link)
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
